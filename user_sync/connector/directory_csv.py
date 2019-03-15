@@ -56,6 +56,7 @@ def connector_load_users_and_groups(state, groups=None, extended_attributes=None
 class CSVDirectoryConnector(object):
     name = 'csv'
 
+    __slots__ = ['options', 'logger', 'encoding', 'user_identity_type', 'users']
     def __init__(self, caller_options):
         caller_config = user_sync.config.DictConfig('%s configuration' % self.name, caller_options)
         builder = user_sync.config.OptionsBuilder(caller_config)

@@ -45,6 +45,8 @@ def connector_initialize(options):
     :type options: dict
     """
     state = OneRosterConnector(options)
+
+
     return state
 
 
@@ -61,7 +63,7 @@ def connector_load_users_and_groups(state, groups=None, extended_attributes=None
 
 class OneRosterConnector(object):
     name = 'oneroster'
-
+    __slots__ = ['options', 'user_identity_type', 'logger', 'results_parser', 'additional_group_filters']
     def __init__(self, caller_options):
 
         # Get the configuration information and apply data from YAML
@@ -96,8 +98,9 @@ class OneRosterConnector(object):
 
         logger.debug('%s initialized with options: %s', self.name, options)
         caller_config.report_unused_values(self.logger)
-
         self.results_parser = RecordHandler(options, logger)
+
+        self.additional_group_filters = None
 
     def load_users_and_groups(self, groups, extended_attributes, all_users):
         """
@@ -109,7 +112,15 @@ class OneRosterConnector(object):
         """
         options = self.options
 
+        ttt = get_actual_size(options)
+
         conn = Connection(self.logger, options['host'], options['limit'], options['client_id'], options['client_secret'])
+        x = get_actual_size(conn)
+        y = sys.getsizeof(conn)
+        a = conn.__sizeof__()
+        test = DataItem("mike", 29, "here")
+        te = get_actual_size(test)
+        ot = test.__sizeof__()
         groups_from_yml = self.parse_yml_groups(groups)
         users_result = {}
 
@@ -120,12 +131,9 @@ class OneRosterConnector(object):
                     user_filter = inner_dict[group_name][user_group]
 
                     users_list = conn.get_user_list(group_filter, group_name, user_filter, options['key_identifier'], options['limit'])
-                    rh = RecordHandler(options, logger=None)
-                    api_response = rh.parse_results(users_list, options['key_identifier'], extended_attributes)
+                    #rh = RecordHandler(options, logger=None)
+                    api_response = RecordHandler(options, logger=None).parse_results(users_list, options['key_identifier'], extended_attributes)
                     #api_response = RecordHandler.parse_results(options, users_list, options['key_identifier'], extended_attributes)
-
-                    # users_list = conn.get_user_list(group_filter, group_name, user_filter, options['key_identifier'], options['limit'])
-                    # api_response = self.results_parser.parse_results(users_list, options['key_identifier'], extended_attributes)
 
                     users_result = self.merge_users(users_result, api_response, user_group)
 
@@ -173,6 +181,7 @@ class OneRosterConnector(object):
 class Connection:
     """ Starts connection and makes queries with One-Roster API"""
 
+    __slots__ = ['logger', 'host_name', 'limit', 'client_id', 'client_secret', 'oneroster']
     def __init__(self, logger, host_name=None, limit='100', client_id=None, client_secret=None):
         self.host_name = host_name
         self.logger = logger
@@ -180,6 +189,8 @@ class Connection:
         self.client_id = client_id
         self.client_secret = client_secret
         self.oneroster = OneRoster(client_id, client_secret)
+        xr = get_actual_size(self.oneroster)
+        c = 5
 
     def get_user_list(self, group_filter, group_name, user_filter, key_identifier, limit):
         """
@@ -306,9 +317,8 @@ class Connection:
                     message = response.reason
                     raise ValueError('Non Successful Response'
                                      + '  ' + 'status:' + str(status) + '  ' + 'message:' + str(message))
-                parsed_json = json.loads(response.content)
 
-                for ignore, each_class in parsed_json.items():
+                for ignore, each_class in json.loads(response.content).items():
                     class_key_id = each_class[0][key_identifier]
                     class_name = each_class[0]['title']
                     class_list[class_name] = class_key_id
@@ -327,7 +337,9 @@ class Connection:
 
 
 class RecordHandler:
-
+    __slots__ = ['logger', 'country_code', 'user_identity_type', 'user_identity_type_formatter', 'user_email_formatter',
+                 'user_username_formatter', 'user_domain_formatter', 'user_given_name_formatter',
+                 'user_surname_formatter', 'user_country_code_formatter']
     def __init__(self, options, logger):
 
         self.logger = logger
@@ -477,3 +489,41 @@ class OneRosterValueFormatter(object):
             except UnicodeError as e:
                 raise AssertionException("Encoding error in value of attribute '%s': %s" % (attribute_name, e))
         return None
+
+
+import sys
+
+def get_actual_size(obj, seen=None):
+    """Recursively finds size of objects"""
+    size = sys.getsizeof(obj)
+    if seen is None:
+        seen = set()
+    obj_id = id(obj)
+    if obj_id in seen:
+        return 0
+    # Important mark as seen *before* entering recursion to gracefully handle
+    # self-referential objects
+    seen.add(obj_id)
+    if isinstance(obj, dict):
+        size += sum([get_actual_size(v, seen) for v in obj.values()])
+        size += sum([get_actual_size(k, seen) for k in obj.keys()])
+    elif hasattr(obj, '__dict__'):
+        size += get_actual_size(obj.__dict__, seen)
+    elif hasattr(obj, '__iter__') and not isinstance(obj, (str, bytes, bytearray)):
+        size += sum([get_actual_size(i, seen) for i in obj])
+    return size
+
+
+def dump(obj):
+  for attr in dir(obj):
+    return print("  obj.%s = %r" % (attr, getattr(obj, attr)))
+
+class DataItem(object):
+    __slots__ = ['name', 'age', 'address']
+    def __init__(self, name, age, address):
+        self.name = name
+        self.age = age
+        self.address = address
+
+    def something(self, name):
+        return name + 5

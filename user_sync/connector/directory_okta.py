@@ -60,6 +60,10 @@ def connector_load_users_and_groups(state, groups=None, extended_attributes=None
 class OktaDirectoryConnector(object):
     name = 'okta'
 
+    __slots__ = ['user_identity_type', 'user_identity_type_formatter', 'user_email_formatter',
+                 'user_username_formatter', 'user_domain_formatter', 'user_given_name_formatter',
+                 'user_surname_formatter', 'user_country_code_formatter', 'users_client',
+                 'groups_client', 'logger', 'options', 'user_by_uid']
     def __init__(self, caller_options):
         caller_config = user_sync.config.DictConfig('%s configuration' % self.name, caller_options)
         builder = user_sync.config.OptionsBuilder(caller_config)
@@ -320,6 +324,7 @@ class OktaDirectoryConnector(object):
 class OKTAValueFormatter(object):
     encoding = 'utf8'
 
+    __slots__ = ['string_format', 'attribute_names']
     def __init__(self, string_format):
         """
         The format string must be a unicode or ascii string: see notes above about being careful in Py2!

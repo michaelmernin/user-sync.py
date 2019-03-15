@@ -42,7 +42,7 @@ client_secret: '10332e330b2e364020179021'
 #Pagination (required according to One Roster final specification)
 #must be supported for ALL endpoints that return a collection
 #Limit, number of results to return during each query, Implementations of One Roster default at 100
-limit: '100'
+limit: '60'
 
 #Key name to the response count of the HTTP request, found in Response.headers._store
 #header_store_count_key: 'x-count'

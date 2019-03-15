@@ -20,6 +20,7 @@
 
 
 class AssertionException(Exception):
+    __slots__ = []
     def __init__(self, message):
         super(AssertionException, self).__init__(message)
         self.reported = False

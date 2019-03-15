@@ -55,7 +55,7 @@ class ConfigLoader(object):
         'user_filter': None,
         'users': ['all'],
     }
-
+    __slots__ = ['logger', 'args', 'main_config', 'invocation_options', 'directory_groups']
     def __init__(self, arg_obj):
         """
         Load the config files and invocation options.
@@ -566,6 +566,7 @@ class ConfigLoader(object):
 
 
 class ObjectConfig(object):
+    __slots__ = ['parent', 'child_configs', 'scope']
     def __init__(self, scope):
         """
         :type scope: str
@@ -640,6 +641,7 @@ class ObjectConfig(object):
 
 
 class ListConfig(ObjectConfig):
+    __slots__ = ['value']
     def __init__(self, scope, value):
         """
         :type scope: str
@@ -673,6 +675,7 @@ class ListConfig(ObjectConfig):
 
 
 class DictConfig(ObjectConfig):
+    __slots__ = ['value', 'accessed_keys']
     def __init__(self, scope, value):
         """
         :type scope: str
@@ -1045,6 +1048,7 @@ class ConfigFileLoader:
 
 
 class OptionsBuilder(object):
+    __slots__ = ['default_config', 'options']
     def __init__(self, default_config):
         """
         :type default_config: DictConfig

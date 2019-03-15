@@ -154,6 +154,7 @@ class JobStats:
     line_left_count = 10
     line_width = 60
 
+    __slots__ = ['name', 'divider', 'start_time']
     def __init__(self, name, divider='-'):
         self.name = name
         self.divider = divider

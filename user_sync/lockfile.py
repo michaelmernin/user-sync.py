@@ -23,6 +23,7 @@ import psutil
 
 
 class ProcessLock(object):
+    __slots__ = ['path']
     def __init__(self, path):
         self.path = path
 

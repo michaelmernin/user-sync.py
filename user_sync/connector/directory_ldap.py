@@ -63,6 +63,10 @@ class LDAPDirectoryConnector(object):
 
     expected_result_types = [ldap.RES_SEARCH_RESULT, ldap.RES_SEARCH_ENTRY]
 
+    __slots__ = ['options', 'logger', 'user_identity_type', 'user_identity_type_formatter',
+                 'user_email_formatter', 'user_username_formatter', 'user_domain_formatter',
+                 'user_given_name_formatter', 'user_surname_formatter', 'user_country_code_formatter',
+                 'connection', 'user_by_dn', 'additional_group_filters']
     def __init__(self, caller_options):
         caller_config = user_sync.config.DictConfig('%s configuration' % self.name, caller_options)
 
@@ -523,6 +527,7 @@ class LDAPDirectoryConnector(object):
 class LDAPValueFormatter(object):
     encoding = 'utf8'
 
+    __slots__ = ['string_format', 'attribute_names']
     def __init__(self, string_format):
         """
         The format string must be a unicode or ascii string: see notes above about being careful in Py2!

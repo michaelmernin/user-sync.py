@@ -195,7 +195,7 @@ directory_users:
     - directory_group: "classes::ELA 6 (6A ELA)::teachers"
       adobe_groups:
         - "Classlink"
-
+#
     - directory_group: "schools::cLasslink Elementary schOOl::students"
       adobe_groups:
         - "Classlink"

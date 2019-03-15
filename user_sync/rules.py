@@ -59,6 +59,11 @@ class RuleProcessor(object):
         'username_filter_regex': None,
     }
 
+    __slots__ = ['options', 'directory_user_by_user_key', 'filtered_directory_user_by_user_key', 'umapi_info_by_name', 'action_summary',
+                 'logger', 'exclude_groups', 'exclude_identity_types', 'exclude_users', 'primary_user_count', 'included_user_keys',
+                 'excluded_user_count', 'primary_users_created', 'secondary_users_created', 'updated_user_keys', 'stray_key_map',
+                 'stray_list_output_path', 'will_manage_strays', 'exclude_strays', 'will_process_strays', 'push_umapi',
+                 'after_mapping_hook_scope', 'email_override']
     def __init__(self, caller_options):
         """
         :type caller_options:dict
@@ -1195,6 +1200,7 @@ class UmapiConnectors(object):
 class AdobeGroup(object):
     index_map = {}
 
+    #__slots__ = ['group_name', 'umapi_name']
     def __init__(self, group_name, umapi_name, index=True):
         """
         :type group_name: str
@@ -1263,6 +1269,9 @@ class AdobeGroup(object):
 
 
 class UmapiTargetInfo(object):
+
+    __slots__ = ['name', 'mapped_groups', 'non_normalize_mapped_groups', 'desired_groups_by_user_key', 'umapi_user_by_user_key',
+                 'umapi_users_loaded', 'stray_by_user_key', 'groups_added_by_user_key', 'groups_removed_by_user_key', 'additional_group_map']
     def __init__(self, name):
         """
         :type name: str

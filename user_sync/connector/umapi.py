@@ -42,6 +42,8 @@ except:
 
 
 class UmapiConnector(object):
+
+    __slots__ = ['name', 'options', 'logger', 'org_id', 'connection', 'action_manager']
     def __init__(self, name, caller_options):
         """
         :type name: str
@@ -188,6 +190,8 @@ class UmapiConnector(object):
 
 
 class Commands(object):
+
+    __slots__ = ['identity_type', 'email', 'username', 'domain', 'do_list']
     def __init__(self, identity_type=None, email=None, username=None, domain=None):
         """
         :type identity_type: str
@@ -277,6 +281,7 @@ class Commands(object):
 class ActionManager(object):
     next_request_id = 1
 
+    __slots__ = ['action_count', 'error_count', 'items', 'connection', 'org_id', 'logger']
     def __init__(self, connection, org_id, logger):
         """
         :type connection: umapi_client.Connection

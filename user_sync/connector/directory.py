@@ -22,6 +22,8 @@ import user_sync.error
 
 
 class DirectoryConnector(object):
+
+    __slots__ = ['implementation', 'metadata', 'name', 'state']
     def __init__(self, implementation):
         self.implementation = implementation
 
