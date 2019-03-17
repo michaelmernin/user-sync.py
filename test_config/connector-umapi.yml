@@ -20,8 +20,8 @@
 # highly recommended that you leave these values commented out
 # so that the default values are guaranteed to be used.
 server:
-  host: usermanagement-stage.adobe.io
-  ims_host: ims-na1-stg1.adobelogin.com
+  host: 'usermanagement-stage.adobe.io'
+  ims_host: 'ims-na1-stg1.adobelogin.com'
   #host: usermanagement.adobe.io
   #endpoint: /v2/usermanagement
   #ims_host: ims-na1.adobelogin.com

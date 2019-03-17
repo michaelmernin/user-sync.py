@@ -56,7 +56,7 @@ def connector_load_users_and_groups(state, groups=None, extended_attributes=None
 class CSVDirectoryConnector(object):
     name = 'csv'
 
-    __slots__ = ['options', 'logger', 'encoding', 'user_identity_type', 'users']
+    __slots__ = ['options', 'logger', 'encoding', 'user_identity_type', 'users', 'additional_group_filters']
     def __init__(self, caller_options):
         caller_config = user_sync.config.DictConfig('%s configuration' % self.name, caller_options)
         builder = user_sync.config.OptionsBuilder(caller_config)
@@ -83,7 +83,7 @@ class CSVDirectoryConnector(object):
         self.encoding = options['string_encoding']
         # identity type for new users if not specified in column
         self.user_identity_type = user_sync.identity_type.parse_identity_type(options['user_identity_type'])
-
+        self.additional_group_filters = None
     def load_users_and_groups(self, groups, extended_attributes):
         """
         :type groups: list(str)
