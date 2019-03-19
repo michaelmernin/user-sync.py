@@ -24,6 +24,8 @@ import six
 import re
 import string
 
+import user_sync.optimizations as opt
+
 import user_sync.config
 import user_sync.connector.helper
 import user_sync.helper
@@ -112,6 +114,8 @@ class OneRosterConnector(object):
         rh = RecordHandler(options, logger=self.logger)
         conn = Connection(self.logger, options['host'], options['limit'], options['client_id'], options['client_secret'])
 
+        contents, sizes_of_contents, total_size = opt.dump_sizer(conn)
+
         groups_from_yml = self.parse_yml_groups(groups)
         users_result = {}
 
@@ -169,7 +173,7 @@ class OneRosterConnector(object):
 
 class Connection:
     """ Starts connection and makes queries with One-Roster API"""
-
+    __slots__ = ['host_name', 'logger', 'limit', 'client_id', 'client_secret', 'oneroster']
     def __init__(self, logger, host_name=None, limit='100', client_id=None, client_secret=None):
         self.host_name = host_name
         self.logger = logger
@@ -444,6 +448,9 @@ class RecordHandler:
 
         user['source_attributes'] = source_attributes.copy()
 
+        # x = opt.get_size(user)
+        # y = opt.dump(user)
+
         return user
 
 
@@ -510,3 +517,6 @@ class OneRosterValueFormatter(object):
             except UnicodeError as e:
                 raise AssertionException("Encoding error in value of attribute '%s': %s" % (attribute_name, e))
         return None
+
+
+

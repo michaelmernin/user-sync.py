@@ -1045,6 +1045,7 @@ class ConfigFileLoader:
 
 
 class OptionsBuilder(object):
+    __slots__ = ['default_config', 'options']
     def __init__(self, default_config):
         """
         :type default_config: DictConfig
