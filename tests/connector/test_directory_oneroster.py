@@ -1,8 +1,10 @@
 import pytest
+import mock
 
 import user_sync
 import user_sync.connector.directory
 from user_sync.connector.directory_oneroster import *
+
 
 
 @pytest.fixture()
@@ -46,6 +48,67 @@ def connection(log_stream):
     return Connection(log_stream, options)
 
 
+@pytest.fixture
+def api_result_set():
+    return [{'sourcedId': '18125', 'status': 'active', 'dateLastModified': '2019-03-01T18:14:45.000Z',
+             'username': 'billy.flores', 'userIds': [{'type': 'FED', 'identifier': '18125'}],
+             'enabledUser': 'true', 'givenName': 'BILLY', 'familyName': 'FLORES', 'middleName': 'DASEAN',
+             'role': 'student', 'identifier': '17580', 'email': 'billy.flores@classlink.k12.nj.us', 'sms': '',
+             'phone': '', 'agents': [], 'orgs': [
+            {'href': 'https://adobe-ca-v2.oneroster.com/ims/oneroster/v1p1/orgs/2', 'sourcedId': '2',
+             'type': 'org'}],
+             'grades': ['11'], 'password': ''},
+            {'sourcedId': '18317', 'status': 'active', 'dateLastModified': '2019-03-01T18:14:45.000Z',
+             'username': 'giselle.houston', 'userIds': [{'type': 'FED', 'identifier': '18317'}],
+             'enabledUser': 'true', 'givenName': 'GISELLE', 'familyName': 'HOUSTON', 'middleName': 'CAMILO',
+             'role': 'student', 'identifier': '15125', 'email': 'giselle.houston@classlink.k12.nj.us',
+             'sms': '',
+             'phone': '', 'agents': [], 'orgs': [
+                {'href': 'https://adobe-ca-v2.oneroster.com/ims/oneroster/v1p1/orgs/2', 'sourcedId': '2',
+                 'type': 'org'}], 'grades': ['11'], 'password': ''},
+            {'sourcedId': '19529', 'status': 'active', 'dateLastModified': '2019-03-01T18:14:45.000Z',
+             'username': 'lari.reyesgarcia', 'userIds': [{'type': 'FED', 'identifier': '19529'}],
+             'enabledUser': 'true', 'givenName': 'LARI', 'familyName': 'REYES GARCIA', 'middleName': 'SIMONE',
+             'role': 'student', 'identifier': '19934', 'email': 'lari.reyesgarcia@classlink.k12.nj.us',
+             'sms': '',
+             'phone': '', 'agents': [], 'orgs': [
+                {'href': 'https://adobe-ca-v2.oneroster.com/ims/oneroster/v1p1/orgs/2', 'sourcedId': '2',
+                 'type': 'org'}], 'grades': ['11'], 'password': ''}]
+
+
+@pytest.fixture
+def parsed_api_results_no_extended_attributes():
+    return {'18125': {'identity_type': 'federatedID', 'username': 'billy.flores@classlink.k12.nj.us',
+                      'domain': 'classlink.k12.nj.us', 'firstname': 'BILLY', 'lastname': 'FLORES',
+                      'email': 'billy.flores@classlink.k12.nj.us', 'groups': set(), 'country': None,
+                      'source_attributes': {'email': 'billy.flores@classlink.k12.nj.us',
+                                            'identity_type': None,
+                                            'username': None, 'domain': None, 'givenName': 'BILLY',
+                                            'familyName': 'FLORES', 'country': None}},
+            '18317': {'identity_type': 'federatedID', 'username': 'giselle.houston@classlink.k12.nj.us',
+                      'domain': 'classlink.k12.nj.us', 'firstname': 'GISELLE', 'lastname': 'HOUSTON',
+                      'email': 'giselle.houston@classlink.k12.nj.us', 'groups': set(), 'country': None,
+                      'source_attributes': {'email': 'giselle.houston@classlink.k12.nj.us',
+                                            'identity_type': None,
+                                            'username': None, 'domain': None, 'givenName': 'GISELLE',
+                                            'familyName': 'HOUSTON', 'country': None}},
+            '19529': {'identity_type': 'federatedID', 'username': 'lari.reyesgarcia@classlink.k12.nj.us',
+                      'domain': 'classlink.k12.nj.us', 'firstname': 'LARI', 'lastname': 'REYES GARCIA',
+                      'email': 'lari.reyesgarcia@classlink.k12.nj.us', 'groups': set(), 'country': None,
+                      'source_attributes': {'email': 'lari.reyesgarcia@classlink.k12.nj.us',
+                                            'identity_type': None,
+                                            'username': None, 'domain': None, 'givenName': 'LARI',
+                                            'familyName': 'REYES GARCIA', 'country': None}}}
+
+
+def test_load_users_and_groups(oneroster_connector, api_result_set, parsed_api_results_no_extended_attributes):
+    with mock.patch("user_sync.connector.directory_oneroster.Connection.list_api_response_handler") as mock_endpoint:
+        mock_endpoint.return_value = api_result_set
+
+        x = oneroster_connector.load_users_and_groups(['xxx'], [], False)
+
+        assert oneroster_connector.load_users_and_groups(['xxx'], [], False) == '<dictionary-valueiterator object at 0x00000000050608B8>'
+
 def test_list_api_response_handler(connection):
     assert "" == ""
 
@@ -70,56 +133,11 @@ def test_encode_str(connection):
     assert "" == ""
 
 
-def test_parse_results_valid(record_handler):
-    api_result_set = [{'sourcedId': '18125', 'status': 'active', 'dateLastModified': '2019-03-01T18:14:45.000Z',
-                       'username': 'billy.flores', 'userIds': [{'type': 'FED', 'identifier': '18125'}],
-                       'enabledUser': 'true', 'givenName': 'BILLY', 'familyName': 'FLORES', 'middleName': 'DASEAN',
-                       'role': 'student', 'identifier': '17580', 'email': 'billy.flores@classlink.k12.nj.us', 'sms': '',
-                       'phone': '', 'agents': [], 'orgs': [
-            {'href': 'https://adobe-ca-v2.oneroster.com/ims/oneroster/v1p1/orgs/2', 'sourcedId': '2',
-             'type': 'org'}],
-                       'grades': ['11'], 'password': ''},
-                      {'sourcedId': '18317', 'status': 'active', 'dateLastModified': '2019-03-01T18:14:45.000Z',
-                       'username': 'giselle.houston', 'userIds': [{'type': 'FED', 'identifier': '18317'}],
-                       'enabledUser': 'true', 'givenName': 'GISELLE', 'familyName': 'HOUSTON', 'middleName': 'CAMILO',
-                       'role': 'student', 'identifier': '15125', 'email': 'giselle.houston@classlink.k12.nj.us',
-                       'sms': '',
-                       'phone': '', 'agents': [], 'orgs': [
-                          {'href': 'https://adobe-ca-v2.oneroster.com/ims/oneroster/v1p1/orgs/2', 'sourcedId': '2',
-                           'type': 'org'}], 'grades': ['11'], 'password': ''},
-                      {'sourcedId': '19529', 'status': 'active', 'dateLastModified': '2019-03-01T18:14:45.000Z',
-                       'username': 'lari.reyesgarcia', 'userIds': [{'type': 'FED', 'identifier': '19529'}],
-                       'enabledUser': 'true', 'givenName': 'LARI', 'familyName': 'REYES GARCIA', 'middleName': 'SIMONE',
-                       'role': 'student', 'identifier': '19934', 'email': 'lari.reyesgarcia@classlink.k12.nj.us',
-                       'sms': '',
-                       'phone': '', 'agents': [], 'orgs': [
-                          {'href': 'https://adobe-ca-v2.oneroster.com/ims/oneroster/v1p1/orgs/2', 'sourcedId': '2',
-                           'type': 'org'}], 'grades': ['11'], 'password': ''}]
+def test_parse_results_valid(record_handler, api_result_set, parsed_api_results_no_extended_attributes):
 
-    expected_result = {'18125': {'identity_type': 'federatedID', 'username': 'billy.flores@classlink.k12.nj.us',
-                                 'domain': 'classlink.k12.nj.us', 'firstname': 'BILLY', 'lastname': 'FLORES',
-                                 'email': 'billy.flores@classlink.k12.nj.us', 'groups': set(), 'country': None,
-                                 'source_attributes': {'email': 'billy.flores@classlink.k12.nj.us',
-                                                       'identity_type': None,
-                                                       'username': None, 'domain': None, 'givenName': 'BILLY',
-                                                       'familyName': 'FLORES', 'country': None}},
-                       '18317': {'identity_type': 'federatedID', 'username': 'giselle.houston@classlink.k12.nj.us',
-                                 'domain': 'classlink.k12.nj.us', 'firstname': 'GISELLE', 'lastname': 'HOUSTON',
-                                 'email': 'giselle.houston@classlink.k12.nj.us', 'groups': set(), 'country': None,
-                                 'source_attributes': {'email': 'giselle.houston@classlink.k12.nj.us',
-                                                       'identity_type': None,
-                                                       'username': None, 'domain': None, 'givenName': 'GISELLE',
-                                                       'familyName': 'HOUSTON', 'country': None}},
-                       '19529': {'identity_type': 'federatedID', 'username': 'lari.reyesgarcia@classlink.k12.nj.us',
-                                 'domain': 'classlink.k12.nj.us', 'firstname': 'LARI', 'lastname': 'REYES GARCIA',
-                                 'email': 'lari.reyesgarcia@classlink.k12.nj.us', 'groups': set(), 'country': None,
-                                 'source_attributes': {'email': 'lari.reyesgarcia@classlink.k12.nj.us',
-                                                       'identity_type': None,
-                                                       'username': None, 'domain': None, 'givenName': 'LARI',
-                                                       'familyName': 'REYES GARCIA', 'country': None}}}
 
     actual_result = record_handler.parse_results(api_result_set, 'sourcedId', [])
-    assert expected_result == actual_result
+    assert parsed_api_results_no_extended_attributes == actual_result
 
     # asserts extended attributes are added to source_attributes dict(),
     # sms and identifier attributes have been extended
@@ -231,7 +249,7 @@ def test_parse_yml_groups_complex_valid(oneroster_connector):
            }
 
 
-def test_OneRosterValueFormatter():
+def test_OneRosterValueFormatter(oneroster_connector):
     attributes = {
         'sourcedId': '18125',
         'status': 'active',
