@@ -63,7 +63,7 @@ class OnerosterAPI:
             url_ender = base_string_seeking + '?limit=' + self.limit + '&offset=0'
         return self.host_name + url_ender
 
-    def make_call(self, url, request_type, group_filter, group_name):
+    def make_call(self, url, request_type, group_filter, group_name=None):
         user_list = []
         key = 'first'
         while key is not None:
