@@ -1,10 +1,14 @@
 import pytest
 import mock
 
+import six
+from six import next
+
 import user_sync
 import user_sync.connector.directory
 from user_sync.connector.directory_oneroster import *
-
+from user_sync.connector.oneroster import OnerosterAPI
+from user_sync.connector.oneroster import ClasslinkAPI
 
 
 @pytest.fixture()
@@ -34,18 +38,18 @@ def record_handler(log_stream):
 
     return RecordHandler(options, log_stream)
 
-
-@pytest.fixture
-def connection(log_stream):
-    options = {'client_id': '0fc7e35773c1fffd32579507', 'client_secret': '10332e330b2e364020179021',
-               'host': 'https://adobe-ca-v2.oneroster.com/ims/oneroster/v1p1/', 'all_users_filter': 'users',
-               'limit': '100', 'key_identifier': 'sourcedId', 'logger_name': 'oneroster',
-               'user_email_format': '{email}', 'user_given_name_format': '{givenName}',
-               'user_surname_format': '{familyName}', 'user_country_code_format': '{countryCode}',
-               'user_username_format': None, 'user_domain_format': None, 'user_identity_type': 'federatedID',
-               'user_identity_type_format': None, 'default_group_filter': 'classes', 'default_user_filter': 'students'}
-
-    return Connection(log_stream, options)
+#
+# @pytest.fixture
+# def connection(log_stream):
+#     options = {'client_id': '0fc7e35773c1fffd32579507', 'client_secret': '10332e330b2e364020179021',
+#                'host': 'https://adobe-ca-v2.oneroster.com/ims/oneroster/v1p1/', 'all_users_filter': 'users',
+#                'limit': '100', 'key_identifier': 'sourcedId', 'logger_name': 'oneroster',
+#                'user_email_format': '{email}', 'user_given_name_format': '{givenName}',
+#                'user_surname_format': '{familyName}', 'user_country_code_format': '{countryCode}',
+#                'user_username_format': None, 'user_domain_format': None, 'user_identity_type': 'federatedID',
+#                'user_identity_type_format': None, 'default_group_filter': 'classes', 'default_user_filter': 'students'}
+#
+#     return Connection(log_stream, options)
 
 
 @pytest.fixture
@@ -100,14 +104,14 @@ def parsed_api_results_no_extended_attributes():
                                             'username': None, 'domain': None, 'givenName': 'LARI',
                                             'familyName': 'REYES GARCIA', 'country': None}}}
 
-
 def test_load_users_and_groups(oneroster_connector, api_result_set, parsed_api_results_no_extended_attributes):
-    with mock.patch("user_sync.connector.directory_oneroster.Connection.list_api_response_handler") as mock_endpoint:
+    with mock.patch("user_sync.connector.oneroster.OnerosterAPI.get_users") as mock_endpoint:
         mock_endpoint.return_value = api_result_set
 
-        x = oneroster_connector.load_users_and_groups(['xxx'], [], False)
+        actual_result = list(oneroster_connector.load_users_and_groups(['xxx'], [], False))
 
-        assert oneroster_connector.load_users_and_groups(['xxx'], [], False) == '<dictionary-valueiterator object at 0x00000000050608B8>'
+        assert actual_result == parsed_api_results_no_extended_attributes
+
 
 def test_list_api_response_handler(connection):
     assert "" == ""
