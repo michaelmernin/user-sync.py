@@ -72,8 +72,8 @@ class OneRosterConnector(object):
 
         connection_config = caller_config.get_dict_config('connection', True)
         connection_builder = user_sync.config.OptionsBuilder(connection_config)
-        connection_builder.require_string_value('client_id')
-        connection_builder.require_string_value('client_secret')
+        connection_builder.set_string_value('client_id', None)
+        connection_builder.set_string_value('client_secret', None)
         connection_builder.require_string_value('platform')
         connection_builder.require_string_value('host')
         connection_builder.set_int_value('page_size', 1000)
@@ -96,7 +96,7 @@ class OneRosterConnector(object):
         builder.set_string_value('user_email_format', six.text_type('{email}'))
         builder.set_string_value('user_given_name_format', six.text_type('{givenName}'))
         builder.set_string_value('user_surname_format', six.text_type('{familyName}'))
-        builder.set_string_value('user_country_code_format', six.text_type('{country}'))
+        builder.set_string_value('user_country_code_format', None)
         builder.set_string_value('user_username_format', None)
         builder.set_string_value('user_domain_format', None)
         builder.set_string_value('user_identity_type', None)
@@ -243,10 +243,9 @@ class RecordHandler:
 
         key = record.get(key_identifier)
 
-        if key is None:
+        if not key:
             return
-        if 'status' in record and record.get('status') != 'active':
-            return
+
         email, last_attribute_name = self.user_email_formatter.generate_value(record)
         email = email.strip() if email else None
         if not email:
