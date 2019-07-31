@@ -50,19 +50,12 @@ def caller_options():
         'additional_groups': []}
 
 
-def test_calculate_groups_to_remove(rule_processor):
-    assert True
-
-
-def test_calculate_groups_to_add(rule_processor):
-    assert True
-
-
 def test_get_username_from_user_key(rule_processor):
     with mock.patch('user_sync.rules.RuleProcessor.parse_user_key') as parse:
         parse.return_value = ['federatedID', 'test_user@email.com', '']
         username = rule_processor.get_username_from_user_key("federatedID,test_user@email.com,")
         assert username == 'test_user@email.com'
+
 
 def test_parse_user_key(rule_processor):
     parsed_user_key = rule_processor.parse_user_key("federatedID,test_user@email.com,")
@@ -71,14 +64,6 @@ def test_parse_user_key(rule_processor):
     domain_parsed_key = rule_processor.parse_user_key("federatedID,test_user,email.com")
     assert domain_parsed_key == ['federatedID', 'test_user', 'email.com']
 
-
-@pytest.fixture()
-def umapi_target_info():
-    return UmapiTargetInfo("")
-
-# @pytest.fixture()
-# def umapi_connectors():
-#     return UmapiConnectors()
 
 def test_add_mapped_group(umapi_target_info):
     umapi_target_info.add_mapped_group("All Students")
