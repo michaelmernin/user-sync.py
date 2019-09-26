@@ -204,12 +204,14 @@ class RuleProcessor(object):
         """
         umapi_name = umapi_info.get_name()
         for mapped, src_groups in umapi_info.get_additional_group_map().items():
-            if len(src_groups) > 1:
-                raise user_sync.error.AssertionException(
-                    "Additional group resolution conflict: {} map to '{}' on '{}'".format(
-                        src_groups, mapped, umapi_name if umapi_name else 'primary org'))
-            self.logger.info("Mapped additional group '{}' to '{}' on '{}'".format(
-                src_groups[0], mapped, umapi_name if umapi_name else 'primary org'))
+            self.logger.info("Mapped additional group(s) '{}' to '{}' on '{}'".format(
+                src_groups, mapped, umapi_name if umapi_name else 'primary org'))
+            # if len(src_groups) > 1:
+            #     raise user_sync.error.AssertionException(
+            #         "Additional group resolution conflict: {} map to '{}' on '{}'".format(
+            #             src_groups, mapped, umapi_name if umapi_name else 'primary org'))
+            # self.logger.info("Mapped additional group '{}' to '{}' on '{}'".format(
+            #     src_groups[0], mapped, umapi_name if umapi_name else 'primary org'))
 
     def log_action_summary(self, umapi_connectors):
         """
