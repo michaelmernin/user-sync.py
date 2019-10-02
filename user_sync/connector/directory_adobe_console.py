@@ -146,7 +146,8 @@ class AdobeConsoleConnector(object):
         # Loading all umapi users based on ID Type first before doing group filtering
         filter_by_identity_type = self.filter_by_identity_type
         self.load_umapi_users(identity_type=filter_by_identity_type)
-
+        if self.additional_group_filters:
+            groups = umapi_groups
         grouped_user_records = {}
         for group in groups:
             group_users_count = 0
@@ -199,6 +200,9 @@ class AdobeConsoleConnector(object):
         source_attributes['lastname'] = user['lastname'] = lastname
 
         source_attributes['country'] = user['country'] = record['country']
+
+        if self.additional_group_filters:
+            source_attributes['member_groups'] = user['member_groups'] = record.get('groups', [])
 
         user['source_attributes'] = source_attributes.copy()
         return user

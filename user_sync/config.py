@@ -464,10 +464,13 @@ class ConfigLoader(object):
         additional_groups = directory_config.get_list('additional_groups', True) or []
         try:
             additional_groups = [{'source': re.compile(r['source']),
-                                  'target': user_sync.rules.AdobeGroup.create(r['target'], index=False)}
+                                  'target': r['target']}
                                  for r in additional_groups]
+
         except Exception as e:
             raise AssertionException("Additional group rule error: {}".format(str(e)))
+
+
         options['additional_groups'] = additional_groups
         sync_options = directory_config.get_dict_config('group_sync_options', True)
         if sync_options:
@@ -516,7 +519,7 @@ class ConfigLoader(object):
 
         # get the limits
         limits_config = self.main_config.get_dict_config('limits')
-        max_missing = limits_config.get_value('max_adobe_only_users',(int, str),False)
+        max_missing = limits_config.get_value('max_adobe_only_users', (int, str), False)
         percent_pattern = re.compile("(\d*(\.\d+)?%)")
         if isinstance(max_missing, str) and percent_pattern.match(max_missing):
             max_missing_percent = float(max_missing.strip('%'))
@@ -528,7 +531,8 @@ class ConfigLoader(object):
             try:
                 options['max_adobe_only_users'] = int(max_missing)
             except ValueError:
-                raise AssertionException("Unable to parse max_adobe_only_users value. Value must be a percentage or an integer.")
+                raise AssertionException(
+                    "Unable to parse max_adobe_only_users value. Value must be a percentage or an integer.")
 
         # now get the directory extension, if any
         extension_config = self.get_directory_extension_options()
@@ -560,6 +564,7 @@ class ConfigLoader(object):
         options = self.get_dict_from_sources(connector_config_sources)
         options['test_mode'] = self.invocation_options['test_mode']
         return options
+
 
     def check_unused_config_keys(self):
         directory_connectors_config = self.get_directory_connector_configs()
@@ -882,7 +887,7 @@ class ConfigFileLoader:
     # key_path is being searched for in what file in what directory
     filepath = None  # absolute path of file currently being loaded
     filename = None  # filename of file currently being loaded
-    dirpath = None   # directory path of file currently being loaded
+    dirpath = None  # directory path of file currently being loaded
     key_path = None  # the full pathname of the setting key being processed
 
     @classmethod
